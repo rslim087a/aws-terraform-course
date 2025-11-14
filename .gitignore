@@ -24,9 +24,6 @@ crash.*.log
 *~
 .DS_Store
 
-# Claude AI assistant
-.claude/
-
 # Environment files
 .env
 .env.local
