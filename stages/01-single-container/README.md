@@ -1,0 +1,3 @@
+# Stage 1: Single Container (ECS Fargate)
+
+This stage creates a VPC with public subnet, internet gateway, security groups, an ECR repository for Docker images, and an ECS Fargate cluster running a single containerized Flask guestbook application. Run `terraform init && terraform apply` to create the infrastructure, then build and push the Docker image with `./build-and-push.sh`, and finally force a deployment with `aws ecs update-service --cluster guestbook-stage1-cluster --service guestbook-stage1-service --force-new-deployment --region us-east-1` to start the app (note: you'll need to get the task's public IP from the ECS console to access it since there's no load balancer yet).

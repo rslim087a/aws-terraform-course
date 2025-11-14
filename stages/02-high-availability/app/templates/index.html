@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guestbook App - Stage 2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        h1 { color: #333; margin-bottom: 10px; font-size: 28px; }
+        .stage-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .metadata {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        .metadata p { margin: 5px 0; font-size: 14px; color: #4a5568; }
+        .metadata strong { color: #2d3748; }
+        .form-section { margin-bottom: 30px; }
+        h2 { color: #2d3748; margin-bottom: 15px; font-size: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #5a67d8; }
+        .entries {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+        }
+        .entry {
+            background: #f7fafc;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        .entry-name { font-weight: 600; color: #2d3748; margin-bottom: 5px; }
+        .entry-message { color: #4a5568; margin-bottom: 5px; }
+        .entry-time { font-size: 12px; color: #a0aec0; }
+        .no-entries {
+            text-align: center;
+            color: #a0aec0;
+            padding: 40px 20px;
+            font-style: italic;
+        }
+        .alert { padding: 12px 15px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; }
+        .alert-success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .alert-error { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Guestbook App</h1>
+        <span class="stage-badge">STAGE 2: High Availability</span>
+        <div class="metadata">
+            <p><strong>Task ID:</strong> {{ task_id }}</p>
+            <p><strong>Availability Zone:</strong> {{ az }}</p>
+            <p><strong>Architecture:</strong> Multiple ECS tasks behind ALB (each with own SQLite DB)</p>
+        </div>
+        <div class="form-section">
+            <h2>Sign the Guestbook</h2>
+            <div id="alert" class="alert hidden"></div>
+            <form id="guestbook-form">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" required placeholder="Leave a message..."></textarea>
+                </div>
+                <button type="submit">Submit Entry</button>
+            </form>
+        </div>
+        <div class="entries">
+            <h2>Recent Entries</h2>
+            {% if entries %}
+                {% for entry in entries %}
+                <div class="entry">
+                    <div class="entry-name">{{ entry[0] }}</div>
+                    <div class="entry-message">{{ entry[1] }}</div>
+                    <div class="entry-time">{{ entry[2] }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-entries">No entries yet. Be the first to sign the guestbook!</div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('guestbook-form');
+        const alertDiv = document.getElementById('alert');
+        function showAlert(message, type) {
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            setTimeout(() => { alertDiv.className = 'alert hidden'; }, 3000);
+        }
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            try {
+                const response = await fetch('/sign', { method: 'POST', body: formData });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showAlert(data.message, 'success');
+                    form.reset();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to submit entry. Please try again.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

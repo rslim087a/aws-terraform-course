@@ -1,0 +1,3 @@
+# Stage 2: High Availability (ALB + Multi-Task ECS)
+
+This stage adds high availability by deploying an Application Load Balancer and running multiple ECS tasks (default: 2) across two availability zones. Run `terraform init && terraform apply` to create the infrastructure, then `./build-and-push.sh us-east-1 guestbook-stage2` to build and push the Docker image, and access the app via the ALB URL shown in the outputs. Note: Each task still has its own SQLite database, so you'll see data inconsistency when refreshing (different tasks serve different data) - this demonstrates why centralized storage is needed in Stage 3.

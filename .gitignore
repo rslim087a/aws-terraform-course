@@ -1,0 +1,40 @@
+# Terraform files
+**/.terraform/
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/*.tfstate
+**/*.tfstate.*
+**/.terraform.tfstate.lock.info
+
+# Crash log files
+crash.log
+crash.*.log
+
+# AWS credentials
+.aws/
+**/*.pem
+**/*.key
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Claude AI assistant
+.claude/
+
+# Environment files
+.env
+.env.local
+**/*.env
+
+# Docker files
+**/.dockerignore
+
+# OS files
+.DS_Store
+Thumbs.db
