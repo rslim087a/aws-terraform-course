@@ -10,11 +10,11 @@ In this day and age, containers are industry standard.
 
 ## Prerequisites:
 
-**AWS Account with credentials configured:** https://rayanslim.com/course/aws-iam-course
+- **AWS Account with credentials configured:** https://rayanslim.com/course/aws-iam-course
 
-**Install Docker:** https://www.youtube.com/watch?v=HdDdzpakWYw
+- **Install Docker:** https://www.youtube.com/watch?v=HdDdzpakWYw
 
-**Terraform installed:**
+- **Terraform installed:**
 
 **Mac**: 
 ```
